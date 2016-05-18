@@ -9,6 +9,7 @@ import ui.MainWindow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import javax.swing.*;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.Timer;
@@ -27,7 +28,7 @@ public class Controller {
     private Book book = new Book();
     private Deduplication deduplication;
     private int count,totalDuplicatedBlock, blockSize;
-    private long totalDuplicatedBlockSize, totalBlock, totalCompress;
+    private long totalSizeOfBlock, totalSizeOfDuplicatedBlock, totalBlock, totalCompress;
     private HSSFWorkbook workbook;
     private HSSFSheet sheet;
 
@@ -57,15 +58,17 @@ public class Controller {
             rowhead.createCell(0).setCellValue("File Name");
             rowhead.createCell(1).setCellValue("Block Size");
             rowhead.createCell(2).setCellValue("Hash Function");
-            rowhead.createCell(3).setCellValue("Hit Rate");
+            rowhead.createCell(3).setCellValue("Dedup Hit Rate (%)");
             rowhead.createCell(4).setCellValue("Duplicated Block");
             rowhead.createCell(5).setCellValue("Total Block");
-            rowhead.createCell(6).setCellValue("Total Size");
-            rowhead.createCell(7).setCellValue("Expected Total");
+            rowhead.createCell(6).setCellValue("Actual Size (MB)");
+            rowhead.createCell(7).setCellValue("Original Size (MB)");
             rowhead.createCell(8).setCellValue("Save Ratio");
-//            rowhead.createCell(9).setCellValue("Compress Ratio");
-//            rowhead.createCell(10).setCellValue("Deduplication Ratio");
-            rowhead.createCell(9).setCellValue("Duration");
+            rowhead.createCell(9).setCellValue("Compression Rate (%)");
+            rowhead.createCell(10).setCellValue("Deduplication Ratio (%)");
+            rowhead.createCell(11).setCellValue("Duration (s)");
+            rowhead.createCell(12).setCellValue("Storage Size (MB)");
+            rowhead.createCell(13).setCellValue("DDT+Record Size (MB)");
 
 
 
@@ -161,7 +164,9 @@ public class Controller {
         long startTime,endTime,duration,actualTotal,expectedTotal;
         totalBlock=0;
         totalDuplicatedBlock=0;
-        totalDuplicatedBlockSize=0;
+        totalSizeOfBlock=0;
+        totalSizeOfDuplicatedBlock=0;
+        totalCompress=0;
         count=0;
         deduplication.readyToWrite();
         startTime = System.nanoTime();
@@ -169,10 +174,9 @@ public class Controller {
             longArray = deduplication.write(folderAndFileName, f);
             totalBlock += longArray[0];
             totalDuplicatedBlock += longArray[1];
-            totalDuplicatedBlockSize += longArray[2];
-            totalCompress += longArray[3];
-//            System.out.println(longArray[2]);
-//            System.out.println(longArray[3]);
+            totalSizeOfBlock += longArray[2];
+            totalSizeOfDuplicatedBlock += longArray[3];
+            totalCompress += longArray[4];
             count += 1;
             writeDirInfo(folderAndFileName,f.length());
         }
@@ -188,37 +192,30 @@ public class Controller {
         actualTotal = getActualTotal();
         expectedTotal = readDirInfo();
         double hitRate = (double)totalDuplicatedBlock/(double)totalBlock*100;
+        double saveRatio = (double)expectedTotal/(double)actualTotal;
+        double compressionRate = ((double)1-((double)totalCompress/(double)expectedTotal))*100;
+        double dedupRate = ((double)totalSizeOfDuplicatedBlock/(double)totalSizeOfBlock)*100;
 
         HSSFRow row = sheet.createRow(sheet.getLastRowNum()+1);
         row.createCell(0).setCellValue(f.getName());
         row.createCell(1).setCellValue(blockSize);
         row.createCell(2).setCellValue(hashFunc);
-        row.createCell(3).setCellValue(hitRate);
+        row.createCell(3).setCellValue((double)Math.round(hitRate*100)/100);
         row.createCell(4).setCellValue(totalDuplicatedBlock);
         row.createCell(5).setCellValue(totalBlock);
-        row.createCell(6).setCellValue(actualTotal);
-        row.createCell(7).setCellValue(expectedTotal);
-        row.createCell(8).setCellValue((double)expectedTotal/(double)actualTotal);
-        //row.createCell(9).setCellValue((double)expectedTotal/(double)totalDuplicatedBlockSize);
-        //row.createCell(10).setCellValue((double)expectedTotal/(double)totalCompress);
-        row.createCell(9).setCellValue((double)duration/1000);
+        row.createCell(6).setCellValue((double)Math.round(((double)actualTotal/1024/1024)*100)/100);
+        row.createCell(7).setCellValue((double)Math.round(((double)expectedTotal/1024/1024)*100)/100);
+        row.createCell(8).setCellValue((double)Math.round(saveRatio*100)/100);
+        row.createCell(9).setCellValue((double)Math.round(compressionRate*100)/100);
+        row.createCell(10).setCellValue((double)Math.round(dedupRate*100)/100);
+        row.createCell(11).setCellValue((double)Math.round((double)duration/1000*10)/10);
+        row.createCell(12).setCellValue((double)Math.round(((double)totalCompress/1024/1024)*100)/100); //storage
+        row.createCell(13).setCellValue((double)Math.round(((double)(actualTotal-totalCompress)/1024/1024)*100)/100); //ddt+record+folder
 
-        System.out.println(totalDuplicatedBlockSize);
-        System.out.println(totalCompress);
         FileOutputStream fileOut = new FileOutputStream(excel);
         workbook.write(fileOut);
         fileOut.close();
-        System.out.println("File : " + f.getName() +" process has finished");
-        //System.out.println("Your excel file has been generated!");
-
-//        System.out.format("Parameter : (Block Size : %d | Hash Function : %s)\n", blockSize, hashFunc);
-//        System.out.format("Number of files : %d\n",count);
-//        System.out.format("Hit Rate : %f",(double)totalDuplicatedBlock/(double)totalBlock*100);
-//        System.out.println("% (Number Duplicated Blocks : "+totalDuplicatedBlock+" | Total Blocks : "+totalBlock+")");
-//        System.out.format("Expected Total : %d KB\n",expectedTotal/1024);
-//        System.out.format("Actual Total : %d KB\n",actualTotal/1024);
-//        System.out.format("Total Saving Ratio : %fx\n",(double)expectedTotal/(double)actualTotal);
-//        System.out.format("Duration : %fs\n\n\n",(double)duration/1000);
+        System.out.println("File : " + f.getName() +" process has finished - BlockSize: "+blockSize+" | HashFunc: "+hashFunc);
     }
 
     public long writeDirectoryRec(String folderName, File directory, List<String> listOfFiles, long s){
@@ -234,6 +231,9 @@ public class Controller {
                 longArray = deduplication.write(folderAndFileName,f); //[0] = total, [1]=duplicated
                 totalBlock += longArray[0];
                 totalDuplicatedBlock += longArray[1];
+                totalSizeOfBlock += longArray[2];
+                totalSizeOfDuplicatedBlock += longArray[3];
+                totalCompress += longArray[4];
                 count += 1;
                 size+= f.length();
             }

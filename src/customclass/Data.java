@@ -2,6 +2,12 @@ package customclass;
 
 import gnu.trove.TLongArrayList;
 
+/**
+ * Data class is a wrapper class for "2 data" of the file.
+ * Those 2 data are :
+ *   ArrayList offsets - identify what blocks are belong to a particular file.
+ *   long size - how big is the file.
+ */
 public class Data {
     private TLongArrayList offsets;
     private long size;

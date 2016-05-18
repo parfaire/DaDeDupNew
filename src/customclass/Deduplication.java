@@ -42,7 +42,7 @@ public class Deduplication {
     }
 
     /**
-     * Decide whether read is uncompressed or not.
+     * Instantiate the FileOutputStream for writing from file.
      */
     public void readyToWrite(){
         try {
@@ -55,7 +55,7 @@ public class Deduplication {
     /**
      * 1. Instantiate the RandomAccessFile once before a series of read operations
      * to avoid instantiating every time storage being read.
-     * 2. Decide whether read is uncompressed or not.
+     * 2. Instantiate the FileInputStream for reading from file.
      */
     public void readyToRead(){
         try {
@@ -119,7 +119,6 @@ public class Deduplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -129,12 +128,16 @@ public class Deduplication {
      * @param fileInput file input to be written
      */
     public long[] write(String folderAndFileName, File fileInput){
-        long totalDuplicatedBlock = 0, totalBlock=0, duplicatedBlockSize=0, totalCompress=0;
+        //Data collection for statistic purpose
+        long totalDuplicatedBlock = 0, totalBlock=0, totalSizeOfDuplicatedBlock=0, totalSizeOfBlock=0, totalCompress=0;
         try {
+            //read the file and prepare the hashFunction
             InputStream fis = new FileInputStream(fileInput);
             MessageDigest digest = MessageDigest.getInstance(hashFunc);
             ByteWrapper hashedBlock;
+            //arraylist as a collection of offsets where the blocks of a file are located
             TLongArrayList offsets = new TLongArrayList();
+            //readBlock is blockSize block, writeBlock is for writing (especially needed for the compressed one)
             byte[] readBlock = new byte[blockSize],writeBlock;
             long offset = storageFile.length();
             long[] offsetAndLength;
@@ -151,8 +154,8 @@ public class Deduplication {
                     //get the offset pointer
                     long[] x = ddt.get(hashedBlock);
                     offsets.add(x);
-                    //System.out.println("x1"+x[1]);
-                    duplicatedBlockSize += x[1];
+                    totalSizeOfDuplicatedBlock += x[1];
+                    i = (int) x[1];
                 }else {
                     //compress if true
                     if(compressed) {
@@ -174,6 +177,7 @@ public class Deduplication {
                     //increase the offset to be used by next block
                     offset += i;
                 }
+                totalSizeOfBlock+=i;
             }
             //add the file record
             Data data = new Data(offsets,fileInput.length());
@@ -182,12 +186,12 @@ public class Deduplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //System.out.println(duplicatedBlockSize+"|"+totalCompress);
-        return new long[]{totalBlock,totalDuplicatedBlock,duplicatedBlockSize,totalCompress};
+        //return the statistic data
+        return new long[]{totalBlock,totalDuplicatedBlock,totalSizeOfBlock,totalSizeOfDuplicatedBlock,totalCompress};
     }
 
     /**
-     * Close the BufferedOutputStream to avoid memory leaks.
+     * Close the FileOutputStream for writing.
      */
     public void finishWriting(){
         try {
@@ -198,7 +202,7 @@ public class Deduplication {
     }
 
     /**
-     * Close the BufferedInputStream to avoid memory leaks.
+     * Close RandomAccessMemory for reading (automatically will close the FileInputStream too).
      */
     public void finishReading(){
         try {
@@ -209,7 +213,7 @@ public class Deduplication {
     }
 
     /**
-     * Method to compress bytes into more efficient bytes.
+     * Method to compress bytes into shorter length bytes.
      * @return compressedByte length
      */
     public byte[] compress(byte[] input) throws IOException {
