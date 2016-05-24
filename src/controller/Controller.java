@@ -27,7 +27,7 @@ public class Controller {
     private Ddt ddt = new Ddt();
     private Book book = new Book();
     private Deduplication deduplication;
-    private int count,totalDuplicatedBlock, blockSize;
+    private int totalDuplicatedBlock, blockSize;
     private long totalSizeOfBlock, totalSizeOfDuplicatedBlock, totalBlock, totalCompress;
     private HSSFWorkbook workbook;
     private HSSFSheet sheet;
@@ -69,8 +69,6 @@ public class Controller {
             rowhead.createCell(11).setCellValue("Duration (s)");
             rowhead.createCell(12).setCellValue("Storage Size (MB)");
             rowhead.createCell(13).setCellValue("DDT+Record Size (MB)");
-
-
 
         } catch(Exception e){
             System.err.println("There is no ddt and book to be loaded.");
@@ -121,6 +119,16 @@ public class Controller {
         refreshStatus();
     }
 
+    public void flushBookOnly() {
+        try {
+            book.writeRecords(records);
+            book.writeFolderDetails(folderdetails);
+            book.clean();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void read(String target, String folderAndFileName){
         try{
             deduplication.readyToRead();
@@ -167,7 +175,6 @@ public class Controller {
         totalSizeOfBlock=0;
         totalSizeOfDuplicatedBlock=0;
         totalCompress=0;
-        count=0;
         deduplication.readyToWrite();
         startTime = System.nanoTime();
         if(!f.isDirectory()) {
@@ -177,7 +184,6 @@ public class Controller {
             totalSizeOfBlock += longArray[2];
             totalSizeOfDuplicatedBlock += longArray[3];
             totalCompress += longArray[4];
-            count += 1;
             writeDirInfo(folderAndFileName,f.length());
         }
         else
@@ -234,8 +240,9 @@ public class Controller {
                 totalSizeOfBlock += longArray[2];
                 totalSizeOfDuplicatedBlock += longArray[3];
                 totalCompress += longArray[4];
-                count += 1;
                 size+= f.length();
+                //flush the books
+                //flushBookOnly();
             }
         }
         return size;
