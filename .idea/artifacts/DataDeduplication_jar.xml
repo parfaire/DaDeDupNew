@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact name="DataDeduplication:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DataDeduplication_jar</output-path>
+    <root id="root">
+      <element id="archive" name="DataDeduplication.jar">
+        <element id="module-output" name="DataDeduplication" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/dd/poi-3.15-beta1.jar" />
+    </root>
+  </artifact>
+</component>

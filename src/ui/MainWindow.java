@@ -7,6 +7,9 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+/**
+ * Main Frame/Window of the User Interface that contains everything.
+ */
 public class MainWindow extends JFrame implements WindowListener{
 
 	private final Dimension MIN_FRAME_SIZE = new Dimension(1280, 640);
@@ -26,7 +29,7 @@ public class MainWindow extends JFrame implements WindowListener{
 	}
 	
 	/**
-	 * Constructor
+	 * Constructor of mainwindow, assigning the controller and setting up all components.
 	 */
 	public MainWindow() {
 		// controller
@@ -35,7 +38,10 @@ public class MainWindow extends JFrame implements WindowListener{
 		setVisible(true);
 		addWindowListener(this);
 	}
-	
+
+	/**
+	 * Preparing to attach two main Panels in itself (InterfacePanel and StatusPanel) and configure the layout.
+	 */
 	private void setupComponents() {
 		this.setMinimumSize(MIN_FRAME_SIZE);
 		

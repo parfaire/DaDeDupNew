@@ -10,20 +10,19 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 
-
+/**
+ * InterfacePanel provide user interface for WRITE and READ to/from Data Deduplication system.
+ * It also provides the list information of the files that have been written.
+ */
 public class InterfacePanel extends JPanel {
 	private final String INTERFACE_LABEL = "Deduplication";
 	private final String READ_GROUP_LABEL = "Read";
-    private final String COMPARE_LABEL = "Compare";
     private final String READ_LABEL1 = "Path";
     private final String READ_LABEL2 = "Filename";
 	private final String WRITE_GROUP_LABEL = "Write";
     private final String WRITE_LABEL1 = "Input";
 	private final String READ_BUTTON_LABEL = ".....READ";
 	private final String WRITE_BUTTON_LABEL = ".....WRITE";
-    private final String DIR1_BUTTON_LABEL = ".....DIR1";
-    private final String DIR2_BUTTON_LABEL = ".....DIR2";
-    private final String COMPARE_SUBMIT_LABEL = "Check the Difference!";
     private final String READ_SUBMIT_LABEL = "Get the file!";
     private final String WRITE_SUBMIT_LABEL = "Store the file!";
     private final String SERVER_LIST_LABEL = "List of Files";
@@ -50,24 +49,26 @@ public class InterfacePanel extends JPanel {
     private JLabel writeLbl;
     private JButton writeSubmit;
 
-    private JPanel comparePanel;
-    private	JTextField dir1Text;
-    private	JTextField dir2Text;
-    private JButton dir1Browse;
-    private JButton dir2Browse;
-    private JLabel dir1Lbl;
-    private JLabel dir2Lbl;
-    private JButton btnCompare;
-	
+    /**
+     * Constructor. Assigning its main parent to itself and instantiate all the UI components.
+     * @param mainWindow
+     */
     public InterfacePanel(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
 		setComponents();
 	}
 
+    /**
+     * A list of file/folder names that have been written to the system.
+     * @return information list of the files that have been written.
+     */
     public JList<String> getList(){
         return list;
     }
-	
+
+    /**
+     * Instantiate  all the UI components and configure the layout.
+     */
 	private void setComponents() {
         readFilename = new JTextField("", TEXT_FIELD_WTDTH);
 		readPathText = new JTextField("", TEXT_FIELD_WTDTH);
@@ -105,7 +106,6 @@ public class InterfacePanel extends JPanel {
 		TitledBorder outputTitle = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), WRITE_GROUP_LABEL);
 		writePanel.setBorder(outputTitle);
 
-
         list = new JList<>();
         scrollPane = new JScrollPane(list);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -121,35 +121,10 @@ public class InterfacePanel extends JPanel {
             }
         });
 
-        comparePanel = new JPanel();
-        dir1Text = new JTextField("", TEXT_FIELD_WTDTH);
-        dir2Text = new JTextField("", TEXT_FIELD_WTDTH);
-        dir1Browse  = new JButton(DIR1_BUTTON_LABEL);
-        dir1Browse.setPreferredSize(new Dimension(20, 20));
-        dir1Browse.addActionListener(new EventListener());
-        dir2Browse = new JButton(DIR2_BUTTON_LABEL);
-        dir2Browse.setPreferredSize(new Dimension(20, 20));
-        dir2Browse.addActionListener(new EventListener());
-        dir1Lbl = new JLabel("Dir 1");
-        dir2Lbl = new JLabel("Dir 2");
-        btnCompare = new JButton(COMPARE_SUBMIT_LABEL);
-        btnCompare.addActionListener(new EventListener());
-        comparePanel.add(dir1Lbl);
-        comparePanel.add(dir1Text);
-        comparePanel.add(dir1Browse);
-        comparePanel.add(dir2Lbl);
-        comparePanel.add(dir2Text);
-        comparePanel.add(dir2Browse);
-        comparePanel.add(btnCompare);
-        TitledBorder compareTitle = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), COMPARE_LABEL);
-        comparePanel.setBorder(compareTitle);
-
-
         centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayout(3,1));
+        centerPanel.setLayout(new GridLayout(2,1));
         centerPanel.add(readPanel);
         centerPanel.add(writePanel);
-        centerPanel.add(comparePanel);
 
 		interfacePanel = new JPanel();
 		interfacePanel.setLayout(new BorderLayout());
@@ -158,7 +133,6 @@ public class InterfacePanel extends JPanel {
         scrollPane.setPreferredSize(new Dimension(290,320));
 		TitledBorder interfaceTitle = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), INTERFACE_LABEL);
 		interfacePanel.setBorder(interfaceTitle);
-
 		
 		setLayout(new BorderLayout());
 		add(interfacePanel, BorderLayout.CENTER);
@@ -166,6 +140,9 @@ public class InterfacePanel extends JPanel {
 		setVisible(true);
 	}
 
+    /**
+     * An event listener of "CLICK" to handle buttons.
+     */
     private class EventListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -184,20 +161,6 @@ public class InterfacePanel extends JPanel {
                 opener.setFileHidingEnabled(false);
                 if(opener.showOpenDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
                     writePathText.setText(opener.getSelectedFile().toString());
-                }
-            }else if (e.getActionCommand().equals(DIR1_BUTTON_LABEL)) {
-                JFileChooser opener = new JFileChooser();
-                opener.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                opener.setFileHidingEnabled(false);
-                if(opener.showOpenDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
-                    dir1Text.setText(opener.getSelectedFile().toString());
-                }
-            }else if (e.getActionCommand().equals(DIR2_BUTTON_LABEL)) {
-                JFileChooser opener = new JFileChooser();
-                opener.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                opener.setFileHidingEnabled(false);
-                if(opener.showOpenDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
-                    dir2Text.setText(opener.getSelectedFile().toString());
                 }
             }else if (e.getActionCommand().equals(READ_SUBMIT_LABEL)) {
                 if(readPathText.getText().equals("") || readFilename.getText().equals("") ){
@@ -227,16 +190,15 @@ public class InterfacePanel extends JPanel {
                     JOptionPane.showMessageDialog(null, "File is stored..(within: "+duration+" ms)");
                     writePathText.setText("");
                 }
-            }else if (e.getActionCommand().equals(COMPARE_SUBMIT_LABEL)) {
-                if(dir1Text.getText().equals("") || dir2Text.getText().equals("")   ){
-                    JOptionPane.showMessageDialog(null, "Please input the file.");
-                }else{
-                    mainWindow.getController().compareTwoDir(dir1Text.getText(),dir2Text.getText());
-                }
             }
             updateUI();
         }
     }
+
+    /**
+     * To automatically fill the Read inputbox with existing filename chosen.
+     * @param filename
+     */
     private void setReadFilename(String filename){
         readFilename.setText(filename);
     }

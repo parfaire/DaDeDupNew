@@ -1,6 +1,6 @@
 package customclass;
 
-import gnu.trove.TLongArrayList;
+import gnu.trove.list.array.TLongArrayList;
 import java.io.*;
 import java.security.MessageDigest;
 import java.util.zip.*;

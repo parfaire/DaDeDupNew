@@ -1,15 +1,14 @@
 package ui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
-import static jdk.nashorn.internal.objects.NativeMath.round;
-
+/**
+ * StatusPanel provide user interface with status information of the system. Such as its memory usage and space usage.
+ */
 public class StatusPanel extends JPanel {
     private long total;
     private long expectedTotal;
@@ -27,13 +26,11 @@ public class StatusPanel extends JPanel {
     private JPanel panelConf;
     private JPanel panelLeft;
 
-    private JTextField tfBlockSize;
 	private JTextField tfDdt;
 	private JTextField tfRecord;
     private JTextField tfFolder;
 	private JTextField tfStorage;
 
-    private JLabel lblBlockSize;
     private JLabel lblDdt;
     private JLabel lblRecord;
     private JLabel lblFolder;
@@ -43,10 +40,11 @@ public class StatusPanel extends JPanel {
     private JLabel lblDedup;
     private JLabel lblMemory;
 
-    private JButton btnSave;
     private JButton btnClear;
     private NumberFormat format = NumberFormat.getInstance();
 
+
+    //SETTER TO ALLOW OTHER CLASSES OUTSIDE THIS CLASS UPDATE THE STATUS
     public void setLblDedup() {
         double d = (double)expectedTotal/(double)total;
         String decimal4 = String.format("%.4f",d);
@@ -64,7 +62,6 @@ public class StatusPanel extends JPanel {
     }
 
     public void setLblStorage(long l) {
-
         this.lblStorage.setText(format.format(l / 1024) +" KB");
     }
 
@@ -100,14 +97,20 @@ public class StatusPanel extends JPanel {
         this.tfStorage.setText(s);
     }
 
-    public void setTfBlokcSize(int i){tfBlockSize.setText(i+"");}
+	//END OF SETTER
 
-	
+    /**
+     * Constructor. Assigning its main parent to itself and instantiate all the UI components.
+     * @param mainWindow
+     */
 	StatusPanel(MainWindow mainWindow) {
         this.mainWindow=mainWindow;
 		this.setComponents();
 	}
-	
+
+    /**
+     * Instantiate  all the UI components and configure the layout.
+     */
 	private void setComponents() {
 		//title
 		TitledBorder joblistTitle = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), this.LABEL);
@@ -122,7 +125,6 @@ public class StatusPanel extends JPanel {
         tfFolder.setEditable(false);
 		tfStorage = new JTextField("", TEXT_FIELD_WTDTH);
         tfStorage.setEditable(false);
-        tfBlockSize = new JTextField("", 20);
         lblDdt = new JLabel("");
         lblRecord = new JLabel("");
         lblFolder = new JLabel("");
@@ -131,7 +133,6 @@ public class StatusPanel extends JPanel {
         lblExpectedTotal = new JLabel("");
         lblDedup = new JLabel("");
         lblMemory = new JLabel("");
-        lblBlockSize = new JLabel("Block Size (bit)");
 
 		panelDdt = new JPanel();
 		panelDdt.setLayout(new FlowLayout());

@@ -7,19 +7,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/poi-3.14/poi-3.14-20160307.jar!/" />
+          <root url="jar://$MODULE_DIR$/dd/poi-3.15-beta1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/poi-3.15-beta1/poi-3.15-beta1.jar!/" />
+          <root url="jar://$MODULE_DIR$/dd/trove-3.0.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

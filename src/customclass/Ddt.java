@@ -1,7 +1,7 @@
 package customclass;
 
-import gnu.trove.THashMap;
 import java.util.Map.Entry;
+import gnu.trove.map.hash.THashMap;
 
 import java.io.*;
 

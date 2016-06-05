@@ -1,8 +1,8 @@
 package customclass;
 
-import gnu.trove.THashMap;
-import gnu.trove.TLongArrayList;
-import gnu.trove.TObjectLongHashMap;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TObjectLongHashMap;
 
 import java.io.*;
 import java.security.MessageDigest;
